@@ -23,7 +23,9 @@ train_data /= 255.0
 
 ########### TRAIN ############
 model_file = "./trial_4_model.h5"
-np.random.seed(2017)
+result_filename = "trial_4_results.csv"
+
+np.random.seed(13216548)
 batch_size = 128  # batch size
 num_classes = 100  # number of classes
 epochs = 100  # epoch size
@@ -42,25 +44,57 @@ data_generator = ImageDataGenerator(
     horizontal_flip=True,  # randomly flip images
     vertical_flip=False)  # randomly flip images
 
-model = ResNext((32, 32, 3), depth=29, cardinality=8, width=4, weights=None, classes=num_classes)
-model.summary()
+model = ResNext((32, 32, 3), depth=29, cardinality=8, width=16, weights=None, classes=num_classes)
 
 model.compile(loss='categorical_crossentropy',
               optimizer=optimizers.Adam(lr=1e-3),
               metrics=['accuracy'])
 
+model.summary()
+
 data_generator.fit(train_data)
 
-lr_reducer = callbacks.ReduceLROnPlateau(monitor='val_loss', factor=np.sqrt(0.1),
+lr_reducer = callbacks.ReduceLROnPlateau(monitor='loss', factor=np.sqrt(0.1),
                                          cooldown=0, patience=10, min_lr=1e-6)
 
-model_checkpoint = callbacks.ModelCheckpoint(model_file, verbose=1, monitor="val_acc", save_best_only=True, mode='auto')
+#model_checkpoint = callbacks.ModelCheckpoint(model_file, verbose=1, monitor="val_acc", save_best_only=True, mode='auto')
 
-train_callbacks = [lr_reducer, model_checkpoint]
+train_callbacks = [lr_reducer]
 model.fit_generator(data_generator.flow(train_data, train_label,
                                         batch_size=batch_size),
                     steps_per_epoch=train_data.shape[0] // batch_size,
                     callbacks=train_callbacks,
-                    epochs=epochs)
+                    epochs=epochs, verbose=1)
 
 model.save(os.path.join(dir_path, model_file))
+
+prd = model.predict(train_data)
+
+predict_result_idx = np.argmax(prd, axis=1)
+label_result_idx = np.argmax(train_label, axis=1)
+
+print("Accuracy on training data:", np.sum(predict_result_idx == label_result_idx)/len(train_data))
+
+########### Test on test data ###################
+test_data_path = os.path.join(dir_path, "test_data")
+
+with open(test_data_path, 'rb') as f:
+    test_data = pickle.load(f)
+
+test_data = tools.reshape(test_data)
+
+print(test_data.shape, 'test samples')
+test_data = test_data.astype('float32')
+test_data /= 255.0
+
+prd = model.predict(test_data)
+
+predict_result_idx = np.argmax(prd, axis=1)
+
+csv_out = open(os.path.join(dir_path, result_filename), "w")
+csv_out.write("ids,labels\n")
+
+for i in range(0, test_data.shape[0]):
+    csv_out.write("%d,%d\n" % (i, predict_result_idx[i]))
+
+csv_out.close()

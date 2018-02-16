@@ -44,7 +44,7 @@ for i in range(1, 101):
 np.random.seed(2017)
 batch_size = 256  # batch size
 num_classes = 100  # number of classes
-epochs = 100  # epoch size
+epochs = 10  # epoch size
 train_label = np_utils.to_categorical(train_label, num_classes)
 
 data_generator = ImageDataGenerator(

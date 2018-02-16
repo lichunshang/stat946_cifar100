@@ -7,7 +7,6 @@ import tools
 
 name = "trial_4"
 model_filename = name + "_model.h5"
-result_filename = name + "_results.csv"
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
 test_data_path = os.path.join(dir_path, "train_data")
