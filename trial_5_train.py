@@ -6,7 +6,7 @@ from keras import callbacks
 from keras import optimizers
 from keras.preprocessing.image import ImageDataGenerator
 import tools
-from resnext import ResNext
+from sparsenet import SparseNet
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
 train_data_path = os.path.join(dir_path, "train_data")
@@ -21,14 +21,18 @@ print(train_data.shape[0], 'train samples')
 train_data = train_data.astype('float32')
 train_data /= 255.0
 
+cifar_mean = train_data.mean(axis=(0, 1, 2), keepdims=True)
+cifar_std = train_data.std(axis=(0, 1, 2), keepdims=True)
+train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
+
 ########### TRAIN ############
-model_file = "./trial_4_model.h5"
-result_filename = "trial_4_results.csv"
+model_file = "./trial_5_model.h5"
+result_filename = "trial_5_results.csv"
 
 np.random.seed(13216548)
-batch_size = 128  # batch size
+batch_size = 64  # batch size
 num_classes = 100  # number of classes
-epochs = 100  # epoch size
+epochs = 1  # epoch size
 
 train_label = np_utils.to_categorical(train_label, num_classes)
 
@@ -44,20 +48,21 @@ data_generator = ImageDataGenerator(
     horizontal_flip=True,  # randomly flip images
     vertical_flip=False)  # randomly flip images
 
-model = ResNext((32, 32, 3), depth=29, cardinality=8, width=16, weights=None, classes=num_classes)
+model = SparseNet((32, 32, 3,), classes=100, depth=40, nb_dense_block=3,
+                  growth_rate=24, nb_filter=-1, dropout_rate=0.25, weights=None)
 
 model.compile(loss='categorical_crossentropy',
               optimizer=optimizers.Adam(lr=1e-3),
-              metrics=['accuracy'])
+              metrics=['accuracy'], amsgrad=True)
 
 model.summary()
 
 data_generator.fit(train_data)
 
-lr_reducer = callbacks.ReduceLROnPlateau(monitor='loss', factor=np.sqrt(0.1),
+lr_reducer = callbacks.ReduceLROnPlateau(monitor='val_loss', factor=np.sqrt(0.1),
                                          cooldown=0, patience=10, min_lr=1e-6)
 
-#model_checkpoint = callbacks.ModelCheckpoint(model_file, verbose=1, monitor="val_acc", save_best_only=True, mode='auto')
+# model_checkpoint = callbacks.ModelCheckpoint(model_file, verbose=1, monitor="val_acc", save_best_only=True, mode='auto')
 
 train_callbacks = [lr_reducer]
 model.fit_generator(data_generator.flow(train_data, train_label,
@@ -73,7 +78,7 @@ prd = model.predict(train_data)
 predict_result_idx = np.argmax(prd, axis=1)
 label_result_idx = np.argmax(train_label, axis=1)
 
-print("Accuracy on training data:", np.sum(predict_result_idx == label_result_idx)/len(train_data))
+print("Accuracy on training data:", np.sum(predict_result_idx == label_result_idx) / len(train_data))
 
 ########### Test on test data ###################
 test_data_path = os.path.join(dir_path, "test_data")
@@ -82,6 +87,7 @@ with open(test_data_path, 'rb') as f:
     test_data = pickle.load(f)
 
 test_data = tools.reshape(test_data)
+test_data = (test_data - cifar_mean) / (cifar_std + 1e-8)
 
 print(test_data.shape, 'test samples')
 test_data = test_data.astype('float32')
