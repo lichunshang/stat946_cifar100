@@ -52,17 +52,17 @@ model = SparseNet((32, 32, 3,), classes=100, depth=40, nb_dense_block=3,
                   growth_rate=24, nb_filter=-1, dropout_rate=0.25, weights=None)
 
 model.compile(loss='categorical_crossentropy',
-              optimizer=optimizers.Adam(lr=1e-3),
-              metrics=['accuracy'], amsgrad=True)
+              optimizer=optimizers.Adam(lr=1e-3, amsgrad=True),
+              metrics=['accuracy'])
 
 model.summary()
 
 data_generator.fit(train_data)
 
-lr_reducer = callbacks.ReduceLROnPlateau(monitor='val_loss', factor=np.sqrt(0.1),
+lr_reducer = callbacks.ReduceLROnPlateau(monitor='loss', factor=np.sqrt(0.1),
                                          cooldown=0, patience=10, min_lr=1e-6)
 
-# model_checkpoint = callbacks.ModelCheckpoint(model_file, verbose=1, monitor="val_acc", save_best_only=True, mode='auto')
+# model_checkpoint = callbacks.ModelCheckpoint(model_file, verbose=1, monitor="acc", save_best_only=True, mode='auto')
 
 train_callbacks = [lr_reducer]
 model.fit_generator(data_generator.flow(train_data, train_label,
