@@ -32,7 +32,7 @@ result_filename = "trial_5_results.csv"
 np.random.seed(13216548)
 batch_size = 64  # batch size
 num_classes = 100  # number of classes
-epochs = 1  # epoch size
+epochs = 300  # epoch size
 
 train_label = np_utils.to_categorical(train_label, num_classes)
 
@@ -48,8 +48,9 @@ data_generator = ImageDataGenerator(
     horizontal_flip=True,  # randomly flip images
     vertical_flip=False)  # randomly flip images
 
-model = SparseNet((32, 32, 3,), classes=100, depth=40, nb_dense_block=3,
-                  growth_rate=24, nb_filter=-1, dropout_rate=0.25, weights=None)
+model = SparseNet((32, 32, 3,), classes=100, depth=100, nb_dense_block=3,
+                  growth_rate=36, nb_filter=-1, dropout_rate=0.25, weights=None, 
+                  bottleneck=True, reduction=0.5, weight_decay=0.0001)
 
 model.compile(loss='categorical_crossentropy',
               optimizer=optimizers.Adam(lr=1e-3, amsgrad=True),
