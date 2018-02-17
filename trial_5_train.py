@@ -29,10 +29,10 @@ train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
 model_file = "./trial_5_model.h5"
 result_filename = "trial_5_results.csv"
 
-np.random.seed(13216548)
+np.random.seed(9809383)
 batch_size = 64  # batch size
 num_classes = 100  # number of classes
-epochs = 300  # epoch size
+epochs = 150  # epoch size
 
 train_label = np_utils.to_categorical(train_label, num_classes)
 
@@ -42,14 +42,14 @@ data_generator = ImageDataGenerator(
     featurewise_std_normalization=False,  # divide inputs by std of the dataset
     samplewise_std_normalization=False,  # divide each input by its std
     zca_whitening=False,  # apply ZCA whitening
-    rotation_range=5,  # randomly rotate images in the range (degrees, 0 to 180)
-    width_shift_range=0.1,  # randomly shift images horizontally (fraction of total width)
-    height_shift_range=0.1,  # randomly shift images vertically (fraction of total height)
+    rotation_range=0,  # randomly rotate images in the range (degrees, 0 to 180)
+    width_shift_range=5.0/32,  # randomly shift images horizontally (fraction of total width)
+    height_shift_range=5.0/32,  # randomly shift images vertically (fraction of total height)
     horizontal_flip=True,  # randomly flip images
     vertical_flip=False)  # randomly flip images
 
 model = SparseNet((32, 32, 3,), classes=100, depth=100, nb_dense_block=3,
-                  growth_rate=36, nb_filter=-1, dropout_rate=0.25, weights=None, 
+                  growth_rate=(16, 32, 64,), nb_filter=-1, dropout_rate=0.25, weights=None, 
                   bottleneck=True, reduction=0.5, weight_decay=0.0001)
 
 model.compile(loss='categorical_crossentropy',
@@ -60,7 +60,7 @@ model.summary()
 
 data_generator.fit(train_data)
 
-lr_reducer = callbacks.ReduceLROnPlateau(monitor='loss', factor=np.sqrt(0.1),
+lr_reducer = callbacks.ReduceLROnPlateau(verbose=1, monitor='loss', factor=np.sqrt(0.1),
                                          cooldown=0, patience=10, min_lr=1e-6)
 
 # model_checkpoint = callbacks.ModelCheckpoint(model_file, verbose=1, monitor="acc", save_best_only=True, mode='auto')
