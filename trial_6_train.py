@@ -34,7 +34,7 @@ result_filename = "trial_5_results.csv"
 np.random.seed(9809383)
 batch_size = 128  # batch size
 num_classes = 100  # number of classes
-epochs = 100  # epoch size
+epochs = 1  # epoch size
 
 train_label = np_utils.to_categorical(train_label, num_classes)
 
@@ -185,6 +185,7 @@ print(test_data.shape, 'test samples')
 test_data = test_data.astype('float32')
 test_data /= 255.0
 
+print("Predicting test data!!!")
 prd = model.predict(test_data)
 
 predict_result_idx = np.argmax(prd, axis=1)
@@ -196,3 +197,5 @@ for i in range(0, test_data.shape[0]):
     csv_out.write("%d,%d\n" % (i, predict_result_idx[i]))
 
 csv_out.close()
+
+print("CSV Saved!!!")
