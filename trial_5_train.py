@@ -30,9 +30,9 @@ model_file = "./trial_5_model.h5"
 result_filename = "trial_5_results.csv"
 
 np.random.seed(9809383)
-batch_size = 64  # batch size
+batch_size = 128  # batch size
 num_classes = 100  # number of classes
-epochs = 150  # epoch size
+epochs = 100  # epoch size
 
 train_label = np_utils.to_categorical(train_label, num_classes)
 
