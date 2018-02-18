@@ -23,13 +23,13 @@ print(train_data.shape[0], 'train samples')
 train_data = train_data.astype('float32')
 train_data /= 255.0
 
-cifar_mean = train_data.mean(axis=(0, 1, 2), keepdims=True)
-cifar_std = train_data.std(axis=(0, 1, 2), keepdims=True)
-train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
+# cifar_mean = train_data.mean(axis=(0, 1, 2), keepdims=True)
+# cifar_std = train_data.std(axis=(0, 1, 2), keepdims=True)
+# train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
 
 ########### TRAIN ############
-model_file = "./trial_5_model.h5"
-result_filename = "trial_5_results.csv"
+model_file = "./trial_6_model.h5"
+result_filename = "trial_6_results.csv"
 
 np.random.seed(9809383)
 batch_size = 128  # batch size
@@ -83,9 +83,9 @@ model.add(layers.Conv2D(256, (3, 3), activation='relu', padding='same', kernel_r
 model.add(layers.BatchNormalization())
 model.add(layers.Dropout(0.4))
 
-model.add(layers.Conv2D(256, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
-model.add(layers.BatchNormalization())
-model.add(layers.Dropout(0.4))
+# model.add(layers.Conv2D(256, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
+# model.add(layers.BatchNormalization())
+# model.add(layers.Dropout(0.4))
 
 model.add(layers.Conv2D(256, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
 model.add(layers.BatchNormalization())
@@ -101,9 +101,9 @@ model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_r
 model.add(layers.BatchNormalization())
 model.add(layers.Dropout(0.4))
 
-model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
-model.add(layers.BatchNormalization())
-model.add(layers.Dropout(0.4))
+# model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
+# model.add(layers.BatchNormalization())
+# model.add(layers.Dropout(0.4))
 
 model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
 model.add(layers.BatchNormalization())
@@ -119,9 +119,9 @@ model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_r
 model.add(layers.BatchNormalization())
 model.add(layers.Dropout(0.4))
 
-model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
-model.add(layers.BatchNormalization())
-model.add(layers.Dropout(0.4))
+# model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
+# model.add(layers.BatchNormalization())
+# model.add(layers.Dropout(0.4))
 
 model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
 model.add(layers.BatchNormalization())
@@ -132,13 +132,13 @@ model.add(layers.MaxPooling2D(pool_size=(2, 2)))
 model.add(layers.Dropout(0.5))
 
 model.add(layers.Flatten())
-model.add(layers.Dense(4096, activation='relu'))
+model.add(layers.Dense(512, activation='relu'))
 model.add(layers.BatchNormalization())
 model.add(layers.Dropout(0.5))
 
-model.add(layers.Dense(4096, activation='relu'))
-model.add(layers.BatchNormalization())
-model.add(layers.Dropout(0.5))
+# model.add(layers.Dense(4096, activation='relu'))
+# model.add(layers.BatchNormalization())
+# model.add(layers.Dropout(0.5))
 
 model.add(layers.Dense(100, activation='softmax'))
 # ********************************************************************************
@@ -179,7 +179,7 @@ with open(test_data_path, 'rb') as f:
     test_data = pickle.load(f)
 
 test_data = tools.reshape(test_data)
-test_data = (test_data - cifar_mean) / (cifar_std + 1e-8)
+# test_data = (test_data - cifar_mean) / (cifar_std + 1e-8)
 
 print(test_data.shape, 'test samples')
 test_data = test_data.astype('float32')
