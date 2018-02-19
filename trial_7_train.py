@@ -7,6 +7,7 @@ from keras import regularizers
 from keras.utils import np_utils
 from keras import layers
 from keras import models
+from keras.callbacks import LearningRateScheduler
 from keras.preprocessing.image import ImageDataGenerator
 import wide_residual_network as wrn
 import tools
@@ -74,12 +75,23 @@ data_generator.fit(train_data)
 #                                          cooldown=0, patience=10, min_lr=1e-6)
 
 # model_checkpoint = callbacks.ModelCheckpoint(model_file, verbose=1, monitor="acc", save_best_only=True, mode='auto')
+def schedule(epoch, curr_lr):
+    if epoch <= 60:
+        return 0.1
+    elif epoch <= 120:
+        return 0.02
+    elif epoch <= 160:
+        return 0.004
+    elif epoch <= 200:
+        return 0.0008
 
-# train_callbacks = [lr_reducer]
+learning_rate_scheduler = LearningRateScheduler(schedule, verbose=1)
+
+train_callbacks = [learning_rate_scheduler]
 model.fit_generator(data_generator.flow(train_data, train_label,
                                         batch_size=batch_size),
                     steps_per_epoch=train_data.shape[0] // batch_size,
-                    # callbacks=train_callbacks,
+                    callbacks=train_callbacks,
                     epochs=epochs, verbose=1)
 
 model.save(os.path.join(dir_path, model_file))
