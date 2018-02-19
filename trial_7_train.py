@@ -5,6 +5,7 @@ from keras import callbacks
 from keras import optimizers
 from keras import regularizers
 from keras.utils import np_utils
+from keras.callbacks import LearningRateScheduler
 from keras import layers
 from keras import models
 from keras.preprocessing.image import ImageDataGenerator
@@ -55,7 +56,7 @@ batch_size = 128  # batch size
 num_classes = 100  # number of classes
 epochs = 135  # epoch size
 
-def schedule(epoch, curr_lr):
+def schedule(epoch):
     if epoch <= 15:
         return 0.01
     elif epoch <= 30:
@@ -95,13 +96,13 @@ data_generator.fit(train_data)
 #                                          cooldown=0, patience=10, min_lr=1e-6)
 
 # model_checkpoint = callbacks.ModelCheckpoint(model_file, verbose=1, monitor="acc", save_best_only=True, mode='auto')
-
-# train_callbacks = [lr_reducer]
+learning_rate_scheduler = LearningRateScheduler(schedule, verbose=1)
+train_callbacks = [learning_rate_scheduler]
 
 model.fit_generator(data_generator.flow(train_data, train_label,
                                         batch_size=batch_size),
                     steps_per_epoch=train_data.shape[0] // batch_size,
-                    # callbacks=train_callbacks,
+                    callbacks=train_callbacks,
                     epochs=epochs, verbose=1)
 
 model.save(os.path.join(dir_path, model_file))
