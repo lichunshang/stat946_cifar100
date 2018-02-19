@@ -57,11 +57,9 @@ num_classes = 100  # number of classes
 epochs = 135  # epoch size
 
 def schedule(epoch):
-    if epoch <= 15:
-        return 0.1
-    if epoch <= 30:
+    if epoch <= 20:
         return 0.01
-    elif epoch <= 100:
+    elif epoch <= 105:
         return 0.001
     elif epoch <= 120:
         return 0.0001
