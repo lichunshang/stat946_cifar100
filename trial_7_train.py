@@ -75,7 +75,7 @@ data_generator.fit(train_data)
 #                                          cooldown=0, patience=10, min_lr=1e-6)
 
 # model_checkpoint = callbacks.ModelCheckpoint(model_file, verbose=1, monitor="acc", save_best_only=True, mode='auto')
-def schedule(epoch, curr_lr):
+def schedule(epoch):
     if epoch <= 60:
         return 0.1
     elif epoch <= 120:
