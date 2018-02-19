@@ -34,7 +34,7 @@ result_filename = "trial_6_results.csv"
 np.random.seed(9809383)
 batch_size = 128  # batch size
 num_classes = 100  # number of classes
-epochs = 1  # epoch size
+epochs = 350  # epoch size
 
 train_label = np_utils.to_categorical(train_label, num_classes)
 
