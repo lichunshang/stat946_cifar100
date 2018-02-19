@@ -36,7 +36,7 @@ cifar_std[:,:,:,0] = 0.2675
 cifar_std[:,:,:,1] = 0.2565
 cifar_std[:,:,:,2] = 0.2761
 
-train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
+# train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
 
 ########### TRAIN ############
 model_file = "./trial_7_model.h5"
@@ -110,7 +110,7 @@ with open(test_data_path, 'rb') as f:
     test_data = pickle.load(f)
 
 test_data = tools.reshape(test_data)
-test_data = (test_data - cifar_mean) / (cifar_std + 1e-8)
+# test_data = (test_data - cifar_mean) / (cifar_std + 1e-8)
 
 print(test_data.shape, 'test samples')
 test_data = test_data.astype('float32')
