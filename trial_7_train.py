@@ -24,15 +24,24 @@ print(train_data.shape[0], 'train samples')
 train_data = train_data.astype('float32')
 train_data /= 255.0
 
-# cifar_mean = train_data.mean(axis=(0, 1, 2), keepdims=True)
-# cifar_std = train_data.std(axis=(0, 1, 2), keepdims=True)
-# train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
+cifar_mean = train_data.mean(axis=(0, 1, 2), keepdims=True)
+cifar_std = train_data.std(axis=(0, 1, 2), keepdims=True)
+
+cifar_mean[:,:,:,0] = 0.5071
+cifar_mean[:,:,:,1] = 0.4867
+cifar_mean[:,:,:,2] = 0.4408
+
+cifar_std[:,:,:,0] = 0.2675
+cifar_std[:,:,:,1] = 0.2565
+cifar_std[:,:,:,2] = 0.2761
+
+train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
 
 ########### TRAIN ############
 model_file = "./trial_7_model.h5"
 result_filename = "trial_7_results.csv"
 
-np.random.seed(2017)
+np.random.seed(3120938120)
 batch_size = 128  # batch size
 num_classes = 100  # number of classes
 epochs = 200  # epoch size
@@ -51,8 +60,6 @@ data_generator = ImageDataGenerator(
     horizontal_flip=True,  # randomly flip images
     vertical_flip=False)  # randomly flip images
 
-# ******************* The VGG 19 Model with Regularization **********************
-weight_decay = 0.001
 model = wrn.create_wide_residual_network((32, 32, 3,), nb_classes=num_classes, N=4, k=10, dropout=0.3)
 
 model.compile(loss='categorical_crossentropy',
@@ -91,7 +98,7 @@ with open(test_data_path, 'rb') as f:
     test_data = pickle.load(f)
 
 test_data = tools.reshape(test_data)
-# test_data = (test_data - cifar_mean) / (cifar_std + 1e-8)
+test_data = (test_data - cifar_mean) / (cifar_std + 1e-8)
 
 print(test_data.shape, 'test samples')
 test_data = test_data.astype('float32')
