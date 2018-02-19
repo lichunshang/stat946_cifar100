@@ -7,7 +7,6 @@ from keras import regularizers
 from keras.utils import np_utils
 from keras import layers
 from keras import models
-from keras.callbacks import LearningRateScheduler
 from keras.preprocessing.image import ImageDataGenerator
 import wide_residual_network as wrn
 import tools
@@ -25,24 +24,15 @@ print(train_data.shape[0], 'train samples')
 train_data = train_data.astype('float32')
 train_data /= 255.0
 
-cifar_mean = train_data.mean(axis=(0, 1, 2), keepdims=True)
-cifar_std = train_data.std(axis=(0, 1, 2), keepdims=True)
-
-cifar_mean[:,:,:,0] = 0.5071
-cifar_mean[:,:,:,1] = 0.4867
-cifar_mean[:,:,:,2] = 0.4408
-
-cifar_std[:,:,:,0] = 0.2675
-cifar_std[:,:,:,1] = 0.2565
-cifar_std[:,:,:,2] = 0.2761
-
+# cifar_mean = train_data.mean(axis=(0, 1, 2), keepdims=True)
+# cifar_std = train_data.std(axis=(0, 1, 2), keepdims=True)
 # train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
 
 ########### TRAIN ############
 model_file = "./trial_7_model.h5"
 result_filename = "trial_7_results.csv"
 
-np.random.seed(3120938120)
+np.random.seed(2017)
 batch_size = 128  # batch size
 num_classes = 100  # number of classes
 epochs = 200  # epoch size
@@ -61,6 +51,8 @@ data_generator = ImageDataGenerator(
     horizontal_flip=True,  # randomly flip images
     vertical_flip=False)  # randomly flip images
 
+# ******************* The VGG 19 Model with Regularization **********************
+weight_decay = 0.001
 model = wrn.create_wide_residual_network((32, 32, 3,), nb_classes=num_classes, N=4, k=10, dropout=0.3)
 
 model.compile(loss='categorical_crossentropy',
@@ -75,23 +67,12 @@ data_generator.fit(train_data)
 #                                          cooldown=0, patience=10, min_lr=1e-6)
 
 # model_checkpoint = callbacks.ModelCheckpoint(model_file, verbose=1, monitor="acc", save_best_only=True, mode='auto')
-def schedule(epoch):
-    if epoch <= 60:
-        return 0.1
-    elif epoch <= 120:
-        return 0.02
-    elif epoch <= 160:
-        return 0.004
-    elif epoch <= 200:
-        return 0.0008
 
-learning_rate_scheduler = LearningRateScheduler(schedule, verbose=1)
-
-train_callbacks = [learning_rate_scheduler]
+# train_callbacks = [lr_reducer]
 model.fit_generator(data_generator.flow(train_data, train_label,
                                         batch_size=batch_size),
                     steps_per_epoch=train_data.shape[0] // batch_size,
-                    callbacks=train_callbacks,
+                    # callbacks=train_callbacks,
                     epochs=epochs, verbose=1)
 
 model.save(os.path.join(dir_path, model_file))
