@@ -31,10 +31,10 @@ train_data /= 255.0
 model_file = "./trial_6_model.h5"
 result_filename = "trial_6_results.csv"
 
-np.random.seed(9809383)
-batch_size = 128  # batch size
+np.random.seed(2017)
+batch_size = 64  # batch size
 num_classes = 100  # number of classes
-epochs = 350  # epoch size
+epochs = 225  # epoch size
 
 train_label = np_utils.to_categorical(train_label, num_classes)
 
@@ -51,11 +51,12 @@ data_generator = ImageDataGenerator(
     vertical_flip=False)  # randomly flip images
 
 # ******************* The VGG 19 Model with Regularization **********************
-weight_decay = 0.0005
+weight_decay = 0.001
 model = models.Sequential()
 
 # block 1
-model.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay), input_shape=train_data.shape[1:]))
+model.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay),
+                        input_shape=train_data.shape[1:]))
 model.add(layers.BatchNormalization())
 model.add(layers.Dropout(0.3))
 
@@ -65,21 +66,25 @@ model.add(layers.BatchNormalization())
 model.add(layers.MaxPooling2D(pool_size=(2, 2)))
 
 # block 2
-model.add(layers.Conv2D(128, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
+model.add(
+    layers.Conv2D(128, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
 model.add(layers.BatchNormalization())
 model.add(layers.Dropout(0.4))
 
-model.add(layers.Conv2D(128, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
+model.add(
+    layers.Conv2D(128, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
 model.add(layers.BatchNormalization())
 
 model.add(layers.MaxPooling2D(pool_size=(2, 2)))
 
 # block 3
-model.add(layers.Conv2D(256, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
+model.add(
+    layers.Conv2D(256, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
 model.add(layers.BatchNormalization())
 model.add(layers.Dropout(0.4))
 
-model.add(layers.Conv2D(256, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
+model.add(
+    layers.Conv2D(256, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
 model.add(layers.BatchNormalization())
 model.add(layers.Dropout(0.4))
 
@@ -87,17 +92,20 @@ model.add(layers.Dropout(0.4))
 # model.add(layers.BatchNormalization())
 # model.add(layers.Dropout(0.4))
 
-model.add(layers.Conv2D(256, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
+model.add(
+    layers.Conv2D(256, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
 model.add(layers.BatchNormalization())
 
 model.add(layers.MaxPooling2D(pool_size=(2, 2)))
 
 # block 4
-model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
+model.add(
+    layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
 model.add(layers.BatchNormalization())
 model.add(layers.Dropout(0.4))
 
-model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
+model.add(
+    layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
 model.add(layers.BatchNormalization())
 model.add(layers.Dropout(0.4))
 
@@ -105,17 +113,20 @@ model.add(layers.Dropout(0.4))
 # model.add(layers.BatchNormalization())
 # model.add(layers.Dropout(0.4))
 
-model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
+model.add(
+    layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
 model.add(layers.BatchNormalization())
 
 model.add(layers.MaxPooling2D(pool_size=(2, 2)))
 
 # block 5
-model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
+model.add(
+    layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
 model.add(layers.BatchNormalization())
 model.add(layers.Dropout(0.4))
 
-model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
+model.add(
+    layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
 model.add(layers.BatchNormalization())
 model.add(layers.Dropout(0.4))
 
@@ -123,7 +134,8 @@ model.add(layers.Dropout(0.4))
 # model.add(layers.BatchNormalization())
 # model.add(layers.Dropout(0.4))
 
-model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
+model.add(
+    layers.Conv2D(512, (3, 3), activation='relu', padding='same', kernel_regularizer=regularizers.l2(weight_decay)))
 model.add(layers.BatchNormalization())
 
 model.add(layers.MaxPooling2D(pool_size=(2, 2)))
@@ -144,7 +156,7 @@ model.add(layers.Dense(100, activation='softmax'))
 # ********************************************************************************
 
 model.compile(loss='categorical_crossentropy',
-              optimizer=optimizers.Adam(lr=1e-3, amsgrad=True),
+              optimizer=optimizers.Adam(lr=1e-3),
               metrics=['accuracy'])
 
 model.summary()
