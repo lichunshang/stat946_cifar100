@@ -10,6 +10,7 @@ from keras import models
 from keras.preprocessing.image import ImageDataGenerator
 import wide_residual_network as wrn
 import tools
+import matplotlib.pyplot as plt
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
 train_data_path = os.path.join(dir_path, "train_data")
@@ -24,9 +25,26 @@ print(train_data.shape[0], 'train samples')
 train_data = train_data.astype('float32')
 train_data /= 255.0
 
-# cifar_mean = train_data.mean(axis=(0, 1, 2), keepdims=True)
-# cifar_std = train_data.std(axis=(0, 1, 2), keepdims=True)
-# train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
+# # show the data through plot
+# plt.figure()  # create new figure
+# fig_size = [20, 20]  # specify figure size
+# plt.rcParams["figure.figsize"] = fig_size  # set figure size
+#
+# # Plot first 100 train image of dataset
+# for i in range(1, 101):
+#     ax = plt.subplot(10, 10, i)  # Specify the i'th subplot of a 10*10 grid
+#     img = train_data[i, :, :, :]  # Choose i'th image from train data
+#     ax.get_xaxis().set_visible(False)  # Disable plot axis.
+#     ax.get_yaxis().set_visible(False)
+#     plt.imshow(img)
+#
+# plt.show()
+
+cifar_mean = train_data.mean(axis=(0, 1, 2), keepdims=True)
+cifar_std = train_data.std(axis=(0, 1, 2), keepdims=True)
+print("Mean:", cifar_mean)
+print("Std:", cifar_std)
+train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
 
 ########### TRAIN ############
 model_file = "./trial_7_model.h5"
@@ -35,7 +53,19 @@ result_filename = "trial_7_results.csv"
 np.random.seed(2017)
 batch_size = 128  # batch size
 num_classes = 100  # number of classes
-epochs = 200  # epoch size
+epochs = 135  # epoch size
+
+def schedule(epoch, curr_lr):
+    if epoch <= 15:
+        return 0.01
+    elif epoch <= 30:
+        return 0.001
+    elif epoch <= 100:
+        return 0.0001
+    elif epoch <= 120:
+        return 0.00001
+    elif epoch <= 135:
+        return 0.000001
 
 train_label = np_utils.to_categorical(train_label, num_classes)
 
@@ -51,8 +81,6 @@ data_generator = ImageDataGenerator(
     horizontal_flip=True,  # randomly flip images
     vertical_flip=False)  # randomly flip images
 
-# ******************* The VGG 19 Model with Regularization **********************
-weight_decay = 0.001
 model = wrn.create_wide_residual_network((32, 32, 3,), nb_classes=num_classes, N=4, k=10, dropout=0.3)
 
 model.compile(loss='categorical_crossentropy',
@@ -69,6 +97,7 @@ data_generator.fit(train_data)
 # model_checkpoint = callbacks.ModelCheckpoint(model_file, verbose=1, monitor="acc", save_best_only=True, mode='auto')
 
 # train_callbacks = [lr_reducer]
+
 model.fit_generator(data_generator.flow(train_data, train_label,
                                         batch_size=batch_size),
                     steps_per_epoch=train_data.shape[0] // batch_size,
@@ -91,7 +120,7 @@ with open(test_data_path, 'rb') as f:
     test_data = pickle.load(f)
 
 test_data = tools.reshape(test_data)
-# test_data = (test_data - cifar_mean) / (cifar_std + 1e-8)
+test_data = (test_data - cifar_mean) / (cifar_std + 1e-8)
 
 print(test_data.shape, 'test samples')
 test_data = test_data.astype('float32')
