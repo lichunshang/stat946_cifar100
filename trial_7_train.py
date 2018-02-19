@@ -58,15 +58,15 @@ epochs = 135  # epoch size
 
 def schedule(epoch):
     if epoch <= 15:
+        return 0.1
+    if epoch <= 30:
         return 0.01
-    elif epoch <= 30:
-        return 0.001
     elif epoch <= 100:
-        return 0.0001
+        return 0.001
     elif epoch <= 120:
-        return 0.00001
+        return 0.0001
     elif epoch <= 135:
-        return 0.000001
+        return 0.00001
 
 train_label = np_utils.to_categorical(train_label, num_classes)
 
