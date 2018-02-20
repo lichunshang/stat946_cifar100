@@ -54,17 +54,17 @@ result_filename = "trial_7_results.csv"
 np.random.seed(2017)
 batch_size = 128  # batch size
 num_classes = 100  # number of classes
-epochs = 135  # epoch size
+epochs = 200  # epoch size
 
 def schedule(epoch):
-    if epoch <= 20:
-        return 0.01
-    elif epoch <= 105:
-        return 0.001
-    elif epoch <= 120:
-        return 0.0001
-    elif epoch <= 135:
-        return 0.00001
+    if epoch <= 60:
+        return 0.1
+    if epoch <= 120:
+        return 0.02
+    elif epoch <= 160:
+        return 0.004
+    elif epoch <= 200:
+        return 0.0008
 
 train_label = np_utils.to_categorical(train_label, num_classes)
 
@@ -82,8 +82,11 @@ data_generator = ImageDataGenerator(
 
 model = wrn.create_wide_residual_network((32, 32, 3,), nb_classes=num_classes, N=4, k=10, dropout=0.3)
 
+# model.compile(loss='categorical_crossentropy',
+#               optimizer=optimizers.Adam(lr=1e-3),
+#               metrics=['accuracy'])
 model.compile(loss='categorical_crossentropy',
-              optimizer=optimizers.Adam(lr=1e-3),
+              optimizer=optimizers.SGD(lr=0.001, momentum=0.9, decay=0.0, nesterov=False),
               metrics=['accuracy'])
 
 model.summary()
