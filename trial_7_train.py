@@ -54,17 +54,17 @@ result_filename = "trial_7_results.csv"
 np.random.seed(2017)
 batch_size = 128  # batch size
 num_classes = 100  # number of classes
-epochs = 200  # epoch size
+epochs = 100  # epoch size
 
 
 def schedule(epoch):
-    if epoch <= 60:
+    if epoch <= 30:
         return 0.1
-    if epoch <= 120:
+    if epoch <= 60:
         return 0.02
-    elif epoch <= 160:
+    elif epoch <= 180:
         return 0.004
-    elif epoch <= 200:
+    elif epoch <= 100:
         return 0.0008
 
 
