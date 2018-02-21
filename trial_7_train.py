@@ -51,7 +51,7 @@ train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
 model_file = "./trial_7_model.h5"
 result_filename = "trial_7_results.csv"
 
-np.random.seed(1912934293284)
+np.random.seed(342983749857209)
 batch_size = 128  # batch size
 num_classes = 100  # number of classes
 epochs = 200  # epoch size
@@ -85,7 +85,7 @@ data_generator = ImageDataGenerator(
     # vertical_flip=False
 )
 
-model = wrn.create_wide_residual_network((32, 32, 3,), nb_classes=num_classes, N=6, k=10, dropout=0.3)
+model = wrn.create_wide_residual_network((32, 32, 3,), nb_classes=num_classes, N=4, k=10, dropout=0.3)
 
 # model.compile(loss='categorical_crossentropy',
 #               optimizer=optimizers.Adam(lr=1e-3),

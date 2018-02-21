@@ -9,29 +9,29 @@ weight_decay = 0.0005
 
 def initial_conv(input):
     x = Convolution2D(16, (3, 3), padding='same', kernel_initializer='he_normal',
-                      use_bias=False, kernel_regularizer=regularizers.l2(weight_decay))(input)
+                      use_bias=True, kernel_regularizer=regularizers.l2(weight_decay))(input)
 
     channel_axis = 1 if K.image_data_format() == "channels_first" else -1
 
-    x = BatchNormalization(axis=channel_axis, momentum=0.1, epsilon=1e-5, gamma_initializer='uniform')(x)
+    x = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(x)
     x = Activation('relu')(x)
     return x
 
 
 def expand_conv(init, base, k, strides=(1, 1)):
     x = Convolution2D(base * k, (3, 3), padding='same', strides=strides, kernel_initializer='he_normal',
-                      use_bias=False, kernel_regularizer=regularizers.l2(weight_decay))(init)
+                      use_bias=True, kernel_regularizer=regularizers.l2(weight_decay))(init)
 
     channel_axis = 1 if K.image_data_format() == "channels_first" else -1
 
-    x = BatchNormalization(axis=channel_axis, momentum=0.1, epsilon=1e-5, gamma_initializer='uniform')(x)
+    x = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(x)
     x = Activation('relu')(x)
 
     x = Convolution2D(base * k, (3, 3), padding='same', kernel_initializer='he_normal',
-                      use_bias=False, kernel_regularizer=regularizers.l2(weight_decay))(x)
+                      use_bias=True, kernel_regularizer=regularizers.l2(weight_decay))(x)
 
     skip = Convolution2D(base * k, (1, 1), padding='same', strides=strides, kernel_initializer='he_normal',
-                      use_bias=False, kernel_regularizer=regularizers.l2(weight_decay))(init)
+                      use_bias=True, kernel_regularizer=regularizers.l2(weight_decay))(init)
 
     m = Add()([x, skip])
 
@@ -43,17 +43,17 @@ def conv1_block(input, k=1, dropout=0.0):
 
     channel_axis = 1 if K.image_data_format() == "channels_first" else -1
 
-    x = BatchNormalization(axis=channel_axis, momentum=0.1, epsilon=1e-5, gamma_initializer='uniform')(input)
+    x = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(input)
     x = Activation('relu')(x)
     x = Convolution2D(16 * k, (3, 3), padding='same', kernel_initializer='he_normal',
-                      use_bias=False, kernel_regularizer=regularizers.l2(weight_decay))(x)
+                      use_bias=True, kernel_regularizer=regularizers.l2(weight_decay))(x)
 
     if dropout > 0.0: x = Dropout(dropout)(x)
 
-    x = BatchNormalization(axis=channel_axis, momentum=0.1, epsilon=1e-5, gamma_initializer='uniform')(x)
+    x = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(x)
     x = Activation('relu')(x)
     x = Convolution2D(16 * k, (3, 3), padding='same', kernel_initializer='he_normal',
-                      use_bias=False, kernel_regularizer=regularizers.l2(weight_decay))(x)
+                      use_bias=True, kernel_regularizer=regularizers.l2(weight_decay))(x)
 
     m = Add()([init, x])
     return m
@@ -63,17 +63,17 @@ def conv2_block(input, k=1, dropout=0.0):
 
     channel_axis = 1 if K.image_dim_ordering() == "th" else -1
 
-    x = BatchNormalization(axis=channel_axis, momentum=0.1, epsilon=1e-5, gamma_initializer='uniform')(input)
+    x = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(input)
     x = Activation('relu')(x)
     x = Convolution2D(32 * k, (3, 3), padding='same', kernel_initializer='he_normal',
-                      use_bias=False, kernel_regularizer=regularizers.l2(weight_decay))(x)
+                      use_bias=True, kernel_regularizer=regularizers.l2(weight_decay))(x)
 
     if dropout > 0.0: x = Dropout(dropout)(x)
 
-    x = BatchNormalization(axis=channel_axis, momentum=0.1, epsilon=1e-5, gamma_initializer='uniform')(x)
+    x = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(x)
     x = Activation('relu')(x)
     x = Convolution2D(32 * k, (3, 3), padding='same', kernel_initializer='he_normal',
-                      use_bias=False, kernel_regularizer=regularizers.l2(weight_decay))(x)
+                      use_bias=True, kernel_regularizer=regularizers.l2(weight_decay))(x)
 
     m = Add()([init, x])
     return m
@@ -83,17 +83,17 @@ def conv3_block(input, k=1, dropout=0.0):
 
     channel_axis = 1 if K.image_dim_ordering() == "th" else -1
 
-    x = BatchNormalization(axis=channel_axis, momentum=0.1, epsilon=1e-5, gamma_initializer='uniform')(input)
+    x = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(input)
     x = Activation('relu')(x)
     x = Convolution2D(64 * k, (3, 3), padding='same', kernel_initializer='he_normal',
-                      use_bias=False, kernel_regularizer=regularizers.l2(weight_decay))(x)
+                      use_bias=True, kernel_regularizer=regularizers.l2(weight_decay))(x)
 
     if dropout > 0.0: x = Dropout(dropout)(x)
 
-    x = BatchNormalization(axis=channel_axis, momentum=0.1, epsilon=1e-5, gamma_initializer='uniform')(x)
+    x = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(x)
     x = Activation('relu')(x)
     x = Convolution2D(64 * k, (3, 3), padding='same', kernel_initializer='he_normal',
-                      use_bias=False, kernel_regularizer=regularizers.l2(weight_decay))(x)
+                      use_bias=True, kernel_regularizer=regularizers.l2(weight_decay))(x)
 
     m = Add()([init, x])
     return m
@@ -127,7 +127,7 @@ def create_wide_residual_network(input_dim, nb_classes=100, N=2, k=1, dropout=0.
         x = conv1_block(x, k, dropout)
         nb_conv += 2
 
-    x = BatchNormalization(axis=channel_axis, momentum=0.1, epsilon=1e-5, gamma_initializer='uniform')(x)
+    x = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(x)
     x = Activation('relu')(x)
 
     x = expand_conv(x, 32, k, strides=(2, 2))
@@ -137,7 +137,7 @@ def create_wide_residual_network(input_dim, nb_classes=100, N=2, k=1, dropout=0.
         x = conv2_block(x, k, dropout)
         nb_conv += 2
 
-    x = BatchNormalization(axis=channel_axis, momentum=0.1, epsilon=1e-5, gamma_initializer='uniform')(x)
+    x = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(x)
     x = Activation('relu')(x)
 
     x = expand_conv(x, 64, k, strides=(2, 2))
@@ -147,7 +147,7 @@ def create_wide_residual_network(input_dim, nb_classes=100, N=2, k=1, dropout=0.
         x = conv3_block(x, k, dropout)
         nb_conv += 2
         
-    x = BatchNormalization(axis=channel_axis, momentum=0.1, epsilon=1e-5, gamma_initializer='uniform')(x)
+    x = BatchNormalization(axis=channel_axis, momentum=0.9, epsilon=1e-5, gamma_initializer='uniform')(x)
     x = Activation('relu')(x)
     
     x = AveragePooling2D((8, 8))(x)
