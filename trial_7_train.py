@@ -85,7 +85,7 @@ data_generator = ImageDataGenerator(
     # vertical_flip=False
 )
 
-model = wrn.create_wide_residual_network((32, 32, 3,), nb_classes=num_classes, N=4, k=10, dropout=0.3)
+model = wrn.create_wide_residual_network((32, 32, 3,), nb_classes=num_classes, N=6, k=10, dropout=0.3)
 
 # model.compile(loss='categorical_crossentropy',
 #               optimizer=optimizers.Adam(lr=1e-3),
