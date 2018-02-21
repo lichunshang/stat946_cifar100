@@ -51,10 +51,11 @@ train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
 model_file = "./trial_7_model.h5"
 result_filename = "trial_7_results.csv"
 
-np.random.seed(2017)
+np.random.seed(1912934293284)
 batch_size = 128  # batch size
 num_classes = 100  # number of classes
 epochs = 100  # epoch size
+
 
 def schedule(epoch):
     if epoch <= 30:
@@ -66,19 +67,23 @@ def schedule(epoch):
     elif epoch <= 100:
         return 0.0008
 
+
 train_label = np_utils.to_categorical(train_label, num_classes)
 
 data_generator = ImageDataGenerator(
-    featurewise_center=False,  # set input mean to 0 over the dataset
-    samplewise_center=False,  # set each sample mean to 0
-    featurewise_std_normalization=False,  # divide inputs by std of the dataset
-    samplewise_std_normalization=False,  # divide each input by its std
-    zca_whitening=False,  # apply ZCA whitening
-    rotation_range=5,  # randomly rotate images in the range (degrees, 0 to 180)
-    width_shift_range=5.0 / 32,  # randomly shift images horizontally (fraction of total width)
-    height_shift_range=5.0 / 32,  # randomly shift images vertically (fraction of total height)
+    # featurewise_center=False,  # set input mean to 0 over the dataset
+    # samplewise_center=False,  # set each sample mean to 0
+    # featurewise_std_normalization=False,  # divide inputs by std of the dataset
+    # samplewise_std_normalization=False,  # divide each input by its std
+    # zca_whitening=False,  # apply ZCA whitening
+    # rotation_range=5,  # randomly rotate images in the range (degrees, 0 to 180)
+    width_shift_range=4.0 / 32,  # randomly shift images horizontally (fraction of total width)
+    height_shift_range=4.0 / 32,  # randomly shift images vertically (fraction of total height)
+    fill_mode='constant',
+    cval=0,
     horizontal_flip=True,  # randomly flip images
-    vertical_flip=False)  # randomly flip images
+    # vertical_flip=False
+)
 
 model = wrn.create_wide_residual_network((32, 32, 3,), nb_classes=num_classes, N=4, k=10, dropout=0.3)
 
@@ -86,7 +91,7 @@ model = wrn.create_wide_residual_network((32, 32, 3,), nb_classes=num_classes, N
 #               optimizer=optimizers.Adam(lr=1e-3),
 #               metrics=['accuracy'])
 model.compile(loss='categorical_crossentropy',
-              optimizer=optimizers.SGD(lr=0.001, momentum=0.9, decay=0.0, nesterov=False),
+              optimizer=optimizers.SGD(lr=0.1, momentum=0.9, decay=0.0, nesterov=False),
               metrics=['accuracy'])
 
 model.summary()
@@ -106,7 +111,7 @@ model.fit_generator(data_generator.flow(train_data, train_label,
                     callbacks=train_callbacks,
                     epochs=epochs, verbose=1)
 
-model.save(os.path.join(dir_path, model_file))
+model.save_weights(os.path.join(dir_path, model_file))
 
 prd = model.predict(train_data)
 

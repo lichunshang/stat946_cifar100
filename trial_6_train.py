@@ -8,6 +8,7 @@ from keras.utils import np_utils
 from keras import layers
 from keras import models
 from keras.preprocessing.image import ImageDataGenerator
+from keras.callbacks import LearningRateScheduler
 import tools
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
@@ -23,35 +24,50 @@ print(train_data.shape[0], 'train samples')
 train_data = train_data.astype('float32')
 train_data /= 255.0
 
-# cifar_mean = train_data.mean(axis=(0, 1, 2), keepdims=True)
-# cifar_std = train_data.std(axis=(0, 1, 2), keepdims=True)
-# train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
+cifar_mean = train_data.mean(axis=(0, 1, 2), keepdims=True)
+cifar_std = train_data.std(axis=(0, 1, 2), keepdims=True)
+print("Mean:", cifar_mean)
+print("Std:", cifar_std)
+train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
 
 ########### TRAIN ############
 model_file = "./trial_6_model.h5"
 result_filename = "trial_6_results.csv"
 
 np.random.seed(2017)
-batch_size = 64  # batch size
+batch_size = 128  # batch size
 num_classes = 100  # number of classes
-epochs = 225  # epoch size
+epochs = 200  # epoch size
+
+def schedule(epoch):
+    if epoch <= 60:
+        return 0.1
+    if epoch <= 120:
+        return 0.01
+    elif epoch <= 160:
+        return 0.001
+    elif epoch <= 200:
+        return 0.0001
 
 train_label = np_utils.to_categorical(train_label, num_classes)
 
 data_generator = ImageDataGenerator(
-    featurewise_center=False,  # set input mean to 0 over the dataset
-    samplewise_center=False,  # set each sample mean to 0
-    featurewise_std_normalization=False,  # divide inputs by std of the dataset
-    samplewise_std_normalization=False,  # divide each input by its std
-    zca_whitening=False,  # apply ZCA whitening
-    rotation_range=5,  # randomly rotate images in the range (degrees, 0 to 180)
-    width_shift_range=5.0 / 32,  # randomly shift images horizontally (fraction of total width)
-    height_shift_range=5.0 / 32,  # randomly shift images vertically (fraction of total height)
+    # featurewise_center=False,  # set input mean to 0 over the dataset
+    # samplewise_center=False,  # set each sample mean to 0
+    # featurewise_std_normalization=False,  # divide inputs by std of the dataset
+    # samplewise_std_normalization=False,  # divide each input by its std
+    # zca_whitening=False,  # apply ZCA whitening
+    # rotation_range=5,  # randomly rotate images in the range (degrees, 0 to 180)
+    width_shift_range=4.0 / 32,  # randomly shift images horizontally (fraction of total width)
+    height_shift_range=4.0 / 32,  # randomly shift images vertically (fraction of total height)
+    fill_mode='constant',
+    cval=0,
     horizontal_flip=True,  # randomly flip images
-    vertical_flip=False)  # randomly flip images
+    # vertical_flip=False
+)
 
 # ******************* The VGG 19 Model with Regularization **********************
-weight_decay = 0.001
+weight_decay = 0.0005
 model = models.Sequential()
 
 # block 1
@@ -156,19 +172,21 @@ model.add(layers.Dense(100, activation='softmax'))
 # ********************************************************************************
 
 model.compile(loss='categorical_crossentropy',
-              optimizer=optimizers.Adam(lr=1e-3),
+              optimizer=optimizers.SGD(lr=0.1, momentum=0.9, decay=0.0, nesterov=False),
               metrics=['accuracy'])
 
 model.summary()
 
 data_generator.fit(train_data)
 
-lr_reducer = callbacks.ReduceLROnPlateau(verbose=1, monitor='loss', factor=np.sqrt(0.1),
-                                         cooldown=0, patience=10, min_lr=1e-6)
+# lr_reducer = callbacks.ReduceLROnPlateau(verbose=1, monitor='loss', factor=np.sqrt(0.1),
+#                                          cooldown=0, patience=10, min_lr=1e-6)
 
 # model_checkpoint = callbacks.ModelCheckpoint(model_file, verbose=1, monitor="acc", save_best_only=True, mode='auto')
 
-train_callbacks = [lr_reducer]
+learning_rate_scheduler = LearningRateScheduler(schedule, verbose=1)
+train_callbacks = [learning_rate_scheduler]
+
 model.fit_generator(data_generator.flow(train_data, train_label,
                                         batch_size=batch_size),
                     steps_per_epoch=train_data.shape[0] // batch_size,
@@ -191,7 +209,7 @@ with open(test_data_path, 'rb') as f:
     test_data = pickle.load(f)
 
 test_data = tools.reshape(test_data)
-# test_data = (test_data - cifar_mean) / (cifar_std + 1e-8)
+test_data = (test_data - cifar_mean) / (cifar_std + 1e-8)
 
 print(test_data.shape, 'test samples')
 test_data = test_data.astype('float32')
