@@ -14,40 +14,56 @@ import tools
 import matplotlib.pyplot as plt
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
-train_data_path = os.path.join(dir_path, "train_data")
 
-with open(train_data_path, 'rb') as f:
-    train_data = pickle.load(f)
-    train_label = pickle.load(f)
+# train_data_path = os.path.join(dir_path, "train_data")
+# with open(train_data_path, 'rb') as f:
+#     train_data = pickle.load(f)
+#     train_label = pickle.load(f)
+#     train_data = tools.reshape(train_data)
+#
+# test_data_path = os.path.join(dir_path, "test_data")
+# with open(test_data_path, 'rb') as f:
+#     test_data = pickle.load(f)
+#     test_data = tools.reshape(test_data)
 
-train_data = tools.reshape(train_data)
+# use downloaded CIFAR dataset to avoid weird reshaping problems with numpy, the test_labels are not
+# used for anything though
+from keras.datasets import cifar100
+(train_data, train_label), (test_data, test_label_not_using) = cifar100.load_data()
+
+print('test data shape:', test_data.shape)
+test_data = test_data.astype('float32')
+test_data /= 255.0
+
 print('train data shape:', train_data.shape)
-print(train_data.shape[0], 'train samples')
 train_data = train_data.astype('float32')
 train_data /= 255.0
 
-# # show the data through plot
-# plt.figure()  # create new figure
-# fig_size = [20, 20]  # specify figure size
-# plt.rcParams["figure.figsize"] = fig_size  # set figure size
-#
-# # Plot first 100 train image of dataset
-# for i in range(1, 101):
-#     ax = plt.subplot(10, 10, i)  # Specify the i'th subplot of a 10*10 grid
-#     img = train_data[i, :, :, :]  # Choose i'th image from train data
-#     ax.get_xaxis().set_visible(False)  # Disable plot axis.
-#     ax.get_yaxis().set_visible(False)
-#     plt.imshow(img)
-#
-# plt.show()
+# show the data through plot
+plt.figure()  # create new figure
+fig_size = [20, 20]  # specify figure size
+plt.rcParams["figure.figsize"] = fig_size  # set figure size
+
+# Plot first 100 train image of dataset
+for i in range(1, 101):
+    ax = plt.subplot(10, 10, i)  # Specify the i'th subplot of a 10*10 grid
+    img = train_data[i, :, :, :]  # Choose i'th image from train data
+    ax.get_xaxis().set_visible(False)  # Disable plot axis.
+    ax.get_yaxis().set_visible(False)
+    plt.imshow(img)
+
+plt.show()
 
 cifar_mean = train_data.mean(axis=(0, 1, 2), keepdims=True)
 cifar_std = train_data.std(axis=(0, 1, 2), keepdims=True)
 print("Mean:", cifar_mean)
 print("Std:", cifar_std)
 train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
+test_data = (test_data - cifar_mean) / (cifar_std + 1e-8)
 
+##############################
 ########### TRAIN ############
+##############################
 model_file = "./trial_7_model.h5"
 result_filename = "trial_7_results.csv"
 
@@ -66,10 +82,9 @@ def schedule(epoch):
     elif epoch <= 200:
         return 0.0008
 
-
 train_label = np_utils.to_categorical(train_label, num_classes)
 
-data_generator = ImageDataGenerator(
+train_data_generator = ImageDataGenerator(
     # featurewise_center=False,  # set input mean to 0 over the dataset
     # samplewise_center=False,  # set each sample mean to 0
     # featurewise_std_normalization=False,  # divide inputs by std of the dataset
@@ -84,7 +99,7 @@ data_generator = ImageDataGenerator(
     # vertical_flip=False
 )
 
-model = wrn.build_model((32, 32, 3,), classes=100, n=4, k=10, dropout=0.3, weight_decay=0.0005, verbose=True)
+model = wrn.build_model((32, 32, 3,), classes=100, n=4, k=1, dropout=0.3, weight_decay=0.0005, verbose=True)
 
 model.compile(loss='categorical_crossentropy',
               optimizer=optimizers.SGD(lr=0.1, momentum=0.9, decay=0.0, nesterov=True),
@@ -92,13 +107,13 @@ model.compile(loss='categorical_crossentropy',
 
 model.summary()
 
-data_generator.fit(train_data)
+train_data_generator.fit(train_data)
 
 learning_rate_scheduler = LearningRateScheduler(schedule, verbose=1)
 train_callbacks = [learning_rate_scheduler]
 
-model.fit_generator(data_generator.flow(train_data, train_label,
-                                        batch_size=batch_size),
+model.fit_generator(train_data_generator.flow(train_data, train_label,
+                                              batch_size=batch_size),
                     steps_per_epoch=train_data.shape[0] // batch_size,
                     callbacks=train_callbacks,
                     epochs=epochs, verbose=1)
@@ -112,19 +127,9 @@ label_result_idx = np.argmax(train_label, axis=1)
 
 print("Accuracy on training data:", np.sum(predict_result_idx == label_result_idx) / len(train_data))
 
+#################################################
 ########### Test on test data ###################
-test_data_path = os.path.join(dir_path, "test_data")
-
-with open(test_data_path, 'rb') as f:
-    test_data = pickle.load(f)
-
-test_data = tools.reshape(test_data)
-test_data = (test_data - cifar_mean) / (cifar_std + 1e-8)
-
-print(test_data.shape, 'test samples')
-test_data = test_data.astype('float32')
-test_data /= 255.0
-
+#################################################
 print("Predicting test data!!!")
 prd = model.predict(test_data)
 
