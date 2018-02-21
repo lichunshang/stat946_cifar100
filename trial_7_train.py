@@ -9,7 +9,7 @@ from keras.callbacks import LearningRateScheduler
 from keras import layers
 from keras import models
 from keras.preprocessing.image import ImageDataGenerator
-import wide_residual_network as wrn
+import taylor_wide_residual_network as wrn
 import tools
 import matplotlib.pyplot as plt
 
@@ -56,7 +56,6 @@ batch_size = 128  # batch size
 num_classes = 100  # number of classes
 epochs = 200  # epoch size
 
-
 def schedule(epoch):
     if epoch <= 60:
         return 0.1
@@ -85,23 +84,16 @@ data_generator = ImageDataGenerator(
     # vertical_flip=False
 )
 
-model = wrn.create_wide_residual_network((32, 32, 3,), nb_classes=num_classes, N=6, k=10, dropout=0.3)
+model = wrn.build_model((32, 32, 3,), classes=100, n=4, k=10, dropout=0.3, weight_decay=0.0005, verbose=True)
 
-# model.compile(loss='categorical_crossentropy',
-#               optimizer=optimizers.Adam(lr=1e-3),
-#               metrics=['accuracy'])
 model.compile(loss='categorical_crossentropy',
-              optimizer=optimizers.SGD(lr=0.1, momentum=0.9, decay=0.0, nesterov=False),
+              optimizer=optimizers.SGD(lr=0.1, momentum=0.9, decay=0.0, nesterov=True),
               metrics=['accuracy'])
 
 model.summary()
 
 data_generator.fit(train_data)
 
-# lr_reducer = callbacks.ReduceLROnPlateau(verbose=1, monitor='loss', factor=np.sqrt(0.1),
-#                                          cooldown=0, patience=10, min_lr=1e-6)
-
-# model_checkpoint = callbacks.ModelCheckpoint(model_file, verbose=1, monitor="acc", save_best_only=True, mode='auto')
 learning_rate_scheduler = LearningRateScheduler(schedule, verbose=1)
 train_callbacks = [learning_rate_scheduler]
 
