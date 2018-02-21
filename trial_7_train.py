@@ -51,7 +51,7 @@ train_data = (train_data - cifar_mean) / (cifar_std + 1e-8)
 model_file = "./trial_7_model.h5"
 result_filename = "trial_7_results.csv"
 
-np.random.seed(342983749857209)
+np.random.seed(342988509)
 batch_size = 128  # batch size
 num_classes = 100  # number of classes
 epochs = 200  # epoch size
