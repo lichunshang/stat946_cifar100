@@ -29,6 +29,7 @@ dir_path = os.path.dirname(os.path.abspath(__file__))
 # use downloaded CIFAR dataset to avoid weird reshaping problems with numpy, the test_labels are not
 # used for anything though
 from keras.datasets import cifar100
+
 (train_data, train_label), (test_data, test_label_not_using) = cifar100.load_data()
 
 print('test data shape:', test_data.shape)
@@ -39,20 +40,19 @@ print('train data shape:', train_data.shape)
 train_data = train_data.astype('float32')
 train_data /= 255.0
 
-# show the data through plot
-plt.figure()  # create new figure
-fig_size = [20, 20]  # specify figure size
-plt.rcParams["figure.figsize"] = fig_size  # set figure size
-
-# Plot first 100 train image of dataset
-for i in range(1, 101):
-    ax = plt.subplot(10, 10, i)  # Specify the i'th subplot of a 10*10 grid
-    img = train_data[i, :, :, :]  # Choose i'th image from train data
-    ax.get_xaxis().set_visible(False)  # Disable plot axis.
-    ax.get_yaxis().set_visible(False)
-    plt.imshow(img)
-
-plt.show()
+#-----------------VISUALIZATION----------------
+# plt.figure()
+# fig_size = [20, 20]
+# plt.rcParams["figure.figsize"] = fig_size
+# for i in range(1, 101):
+#     ax = plt.subplot(10, 10, i)
+#     img = train_data[i, :, :, :]
+#     ax.get_xaxis().set_visible(False)
+#     ax.get_yaxis().set_visible(False)
+#     plt.imshow(img)
+#
+# plt.show()
+#----------------------------------------------
 
 cifar_mean = train_data.mean(axis=(0, 1, 2), keepdims=True)
 cifar_std = train_data.std(axis=(0, 1, 2), keepdims=True)
@@ -72,6 +72,7 @@ batch_size = 128  # batch size
 num_classes = 100  # number of classes
 epochs = 200  # epoch size
 
+
 def schedule(epoch):
     if epoch <= 60:
         return 0.1
@@ -81,6 +82,7 @@ def schedule(epoch):
         return 0.004
     elif epoch <= 200:
         return 0.0008
+
 
 train_label = np_utils.to_categorical(train_label, num_classes)
 
@@ -99,7 +101,7 @@ train_data_generator = ImageDataGenerator(
     # vertical_flip=False
 )
 
-model = wrn.build_model((32, 32, 3,), classes=100, n=4, k=1, dropout=0.3, weight_decay=0.0005, verbose=True)
+model = wrn.build_model((32, 32, 3,), classes=100, n=4, k=10, dropout=0.3, weight_decay=0.0005, verbose=True)
 
 model.compile(loss='categorical_crossentropy',
               optimizer=optimizers.SGD(lr=0.1, momentum=0.9, decay=0.0, nesterov=True),
@@ -116,7 +118,9 @@ model.fit_generator(train_data_generator.flow(train_data, train_label,
                                               batch_size=batch_size),
                     steps_per_epoch=train_data.shape[0] // batch_size,
                     callbacks=train_callbacks,
-                    epochs=epochs, verbose=1)
+                    epochs=epochs, verbose=1,
+                    validation_data=(test_data, np_utils.to_categorical(test_label_not_using),)
+                    )
 
 model.save_weights(os.path.join(dir_path, model_file))
 
