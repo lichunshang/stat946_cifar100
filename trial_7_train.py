@@ -10,6 +10,7 @@ from keras import layers
 from keras import models
 from keras.preprocessing.image import ImageDataGenerator
 import taylor_wide_residual_network as wrn
+import wide_residual_network as wrn2
 import tools
 import matplotlib.pyplot as plt
 
@@ -101,7 +102,9 @@ train_data_generator = ImageDataGenerator(
     # vertical_flip=False
 )
 
-model = wrn.build_model((32, 32, 3,), classes=100, n=4, k=10, dropout=0.3, weight_decay=0.0005, verbose=True)
+# model = wrn.build_model((32, 32, 3,), classes=100, n=4, k=10, dropout=0.3, weight_decay=0.0005, verbose=True)
+model = wrn2.create_wide_residual_network((32, 32, 3,), nb_classes=num_classes, N=4, k=10, dropout=0.3)
+
 
 model.compile(loss='categorical_crossentropy',
               optimizer=optimizers.SGD(lr=0.1, momentum=0.9, decay=0.0, nesterov=True),
