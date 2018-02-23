@@ -25,7 +25,6 @@ dir_path = os.path.dirname(os.path.abspath(__file__))
 # use downloaded CIFAR dataset to avoid weird reshaping problems with numpy, the test_labels are not
 # used for anything though
 from keras.datasets import cifar100
-
 (train_data, train_label), (test_data, test_label_not_using) = cifar100.load_data()
 
 print('test data shape:', test_data.shape)

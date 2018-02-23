@@ -6,17 +6,17 @@ from keras import layers
 from keras import models
 from keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
-import tools
 
 ###### LOAD AND CONFIGURE DATA #######
 dir_path = os.path.dirname(os.path.abspath(__file__))
-train_data_path = os.path.join(dir_path, "train_data")
+# train_data_path = os.path.join(dir_path, "train_data")
+#
+# with open(train_data_path, 'rb') as f:
+#     train_data = pickle.load(f)
+#     train_label = pickle.load(f)
 
-with open(train_data_path, 'rb') as f:
-    train_data = pickle.load(f)
-    train_label = pickle.load(f)
-
-train_data = tools.reshape(train_data)
+from keras.datasets import cifar100
+(train_data, train_label), (test_data, test_label_not_using) = cifar100.load_data()
 
 print('train data shape:', train_data.shape)
 print(train_data.shape, 'train samples')
