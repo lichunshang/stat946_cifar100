@@ -2,19 +2,20 @@ import os
 import pickle
 import numpy as np
 from keras import models
-import tools
 
 name = "trial_4"
 model_filename = name + "_model.h5"
 result_filename = name + "_results.csv"
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
-test_data_path = os.path.join(dir_path, "test_data")
-
-with open(test_data_path, 'rb') as f:
-    test_data = pickle.load(f)
-
-test_data = tools.reshape(test_data)
+# test_data_path = os.path.join(dir_path, "test_data")
+#
+# with open(test_data_path, 'rb') as f:
+#     test_data = pickle.load(f)
+#
+# test_data = tools.reshape(test_data)
+from keras.datasets import cifar100
+(train_data, train_label), (test_data, test_label_not_using) = cifar100.load_data()
 
 print(test_data.shape, 'test samples')
 test_data = test_data.astype('float32')
