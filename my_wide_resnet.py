@@ -12,7 +12,7 @@ fc_weight_decay = 0.0005
 
 def _build_main_block(x, base_width, N, k, dropout, strides):
     x = BatchNormalization(axis=_CHANNEL_AXIS, momentum=0.1, epsilon=1e-5, beta_regularizer=l2(bn_weight_decay),
-                           gamma_regularizer=l2(bn_weight_decay), gamma_initializer='ones')(x)
+                           gamma_regularizer=l2(bn_weight_decay), gamma_initializer='uniform')(x)
     x = Activation('relu')(x)
 
     # ---- first wide resnet basic dropout block ------
@@ -20,7 +20,7 @@ def _build_main_block(x, base_width, N, k, dropout, strides):
                kernel_regularizer=l2(cnn_weight_decay), use_bias=False)(x)
     z = Dropout(dropout)(z)
     z = BatchNormalization(axis=_CHANNEL_AXIS, momentum=0.1, epsilon=1e-5, beta_regularizer=l2(bn_weight_decay),
-                           gamma_regularizer=l2(bn_weight_decay), gamma_initializer='ones')(z)
+                           gamma_regularizer=l2(bn_weight_decay), gamma_initializer='uniform')(z)
     z = Activation('relu')(z)
     z = Conv2D(base_width * k, (3, 3), strides=(1, 1,), padding='same', kernel_initializer='he_normal',
                kernel_regularizer=l2(cnn_weight_decay), use_bias=False)(z)
@@ -34,14 +34,14 @@ def _build_main_block(x, base_width, N, k, dropout, strides):
 
     for i in range(N - 1):
         z = BatchNormalization(axis=_CHANNEL_AXIS, momentum=0.1, epsilon=1e-5, beta_regularizer=l2(bn_weight_decay),
-                               gamma_regularizer=l2(bn_weight_decay), gamma_initializer='ones')(x)
+                               gamma_regularizer=l2(bn_weight_decay), gamma_initializer='uniform')(x)
         z = Activation('relu')(z)
 
         z = Conv2D(base_width * k, (3, 3), strides=(1, 1), padding='same', kernel_initializer='he_normal',
                    kernel_regularizer=l2(cnn_weight_decay), use_bias=False)(z)
         z = Dropout(dropout)(z)
         z = BatchNormalization(axis=_CHANNEL_AXIS, momentum=0.1, epsilon=1e-5, beta_regularizer=l2(bn_weight_decay),
-                               gamma_regularizer=l2(bn_weight_decay), gamma_initializer='ones')(z)
+                               gamma_regularizer=l2(bn_weight_decay), gamma_initializer='uniform')(z)
         z = Activation('relu')(z)
         z = Conv2D(base_width * k, (3, 3), strides=(1, 1), padding='same', kernel_initializer='he_normal',
                    kernel_regularizer=l2(cnn_weight_decay), use_bias=False)(z)
@@ -61,7 +61,7 @@ def build():
     x = _build_main_block(x, base_width=64, N=4, k=10, dropout=0.3, strides=(2, 2))
 
     x = BatchNormalization(axis=_CHANNEL_AXIS, momentum=0.1, epsilon=1e-5, beta_regularizer=l2(bn_weight_decay),
-                           gamma_regularizer=l2(bn_weight_decay), gamma_initializer='ones')(x)
+                           gamma_regularizer=l2(bn_weight_decay), gamma_initializer='uniform')(x)
     x = Activation('relu')(x)
     x = AveragePooling2D((8, 8), (1, 1), padding='same')(x)
     x = Flatten()(x)
