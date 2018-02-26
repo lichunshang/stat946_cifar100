@@ -57,8 +57,8 @@ def build():
                kernel_regularizer=l2(cnn_weight_decay), use_bias=False)(input)
 
     x = _build_main_block(x, base_width=16, N=4, k=10, dropout=0.3, strides=(1, 1))
-    x = _build_main_block(x, base_width=32, N=4, k=10, dropout=0.3, strides=(2, 2))
-    x = _build_main_block(x, base_width=64, N=4, k=10, dropout=0.3, strides=(2, 2))
+    x = _build_main_block(x, base_width=32, N=4, k=10, dropout=0.4, strides=(2, 2))
+    x = _build_main_block(x, base_width=64, N=4, k=10, dropout=0.5, strides=(2, 2))
 
     x = BatchNormalization(axis=_CHANNEL_AXIS, momentum=0.1, epsilon=1e-5, beta_regularizer=l2(bn_weight_decay),
                            gamma_regularizer=l2(bn_weight_decay), gamma_initializer='uniform')(x)
