@@ -35,7 +35,7 @@ def _build_main_block(x, base_width, N, k, dropout, strides):
     for i in range(N - 1):
         z = BatchNormalization(axis=_CHANNEL_AXIS, momentum=0.1, epsilon=1e-5, beta_regularizer=l2(bn_weight_decay),
                                gamma_regularizer=l2(bn_weight_decay), gamma_initializer='uniform')(x)
-        x = Activation('relu')(z)
+        z = Activation('relu')(z)
 
         z = Conv2D(base_width * k, (3, 3), strides=(1, 1), padding='same', kernel_initializer='he_normal',
                    kernel_regularizer=l2(cnn_weight_decay), use_bias=False)(z)
